@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>医库APP</title>
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+  <meta name="format-detection" content="telephone=no"/>
+  <meta name="format-detection" content="email=no"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0"/>
+  <!-- 该地址已经包含在容器中，不会产生额外流量 -->
+  <link rel="stylesheet" href="https://as.alipayobjects.com/g/h5-lib/antui/9.9.0-2/rem/antui.css"/>
+  <link rel="stylesheet" href="https://as.alipayobjects.com/g/h5-lib/antui/9.9.0-2/rem/??widget/message.css,icon/message.css"/>
+  <link rel="stylesheet" href="./css/common.css" />
+  <link rel="stylesheet" type="text/css" href="https://a.alipayobjects.com/g/antui/antui/10.0.0/rem/antui-all.css" media="all">
+  <link rel="stylesheet" href="https://as.alipayobjects.com/g/component/swiper/3.2.7/swiper.min.css">
+  <script src="./js/index.js"></script>
+</head>
+<body ontouchstart="">
+  
+<div class="am-search-inpage am-input-autoclear">
+  <div class="am-search-input">
+    <div class="am-search-icon" aria-hidden="true">
+      <i class="am-icon search-inpage"></i>
+    </div>
+    <input class="am-search-value" type="text" placeholder="搜索" value="" aria-label="关键词">
+    <div class="am-search-clear" tabindex="0" aria-controls="demo-search-ipt-1">
+      <i class="am-icon-clear am-icon clear-tiny" aria-hidden="true"></i>
+    </div>
+  </div>
+</div>
+<a href="commondrug.html">aaa</a>
+<br/><br/><br/>
+     <div  class="am-wingblank wb10px am-ft-md am-ft-gray">医库-药典包含西药库和中药库，中药库又包含中成药、中药饮片以及方剂，请输入药品关键词检索，更多用药信息及用药指南请下载"医库APP"!</div>   
+
+<script>
+          document.addEventListener('AlipayJSBridgeReady', function () {
+            AlipayJSBridge.call('httpRequest', {
+              url: 'https://h5data.alipay.com/fd.jsonp?rgn=ide-release_release_injected-js-h5data',
+              headers: [
+                {
+                  'Content-Type': 'application/json'
+                }
+              ],
+              method: 'GET',
+            }, function (result) {
+              if (result.status === 200) {
+                try {
+                  var data = JSON.parse(result.data);
+                  if (data.js) {
+                    console.log(data.js);
+                    console.log(data.js.replace);
+                    var script = document.createElement('script');
+                    script.innerText = 'var APP_ID_FROM_IDE="2017011104980724";' + data.js.replace(/\n/g, '');
+                    document.body.appendChild(script);
+                  }
+                } catch (e) {
+                  console.log(e);
+                }
+              }
+            });
+          });
+          </script>
+</body>
+</html>

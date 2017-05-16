@@ -1,0 +1,15 @@
+{
+  "name": "alipay-app-quick-start",
+  "version": "0.0.1",
+  "description": "Example for Alipay app.",
+  "main": "index.js",
+  "scripts": {
+    "start": "http-server ./ -p 8989 -e \"\" -c -1",
+    "clean": "shx rm -rf ./dist && shx mkdir dist",
+    "build": "npm run clean && shx cp -r *.html js css ./dist"
+  },
+  "devDependencies": {
+    "http-server": "^0.9.0",
+    "shx": "^0.1.4"
+  }
+}
