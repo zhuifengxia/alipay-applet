@@ -1,39 +1,143 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>医库APP</title>
-  <meta name="description" content="">
-  <meta name="keywords" content="">
-  <meta name="apple-mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
-  <meta name="format-detection" content="telephone=no"/>
-  <meta name="format-detection" content="email=no"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0"/>
-  <!-- 该地址已经包含在容器中，不会产生额外流量 -->
-  <link rel="stylesheet" href="https://as.alipayobjects.com/g/h5-lib/antui/9.9.0-2/rem/antui.css"/>
-  <link rel="stylesheet" href="https://as.alipayobjects.com/g/h5-lib/antui/9.9.0-2/rem/??widget/message.css,icon/message.css"/>
-  <link rel="stylesheet" href="./css/common.css" />
-  <link rel="stylesheet" type="text/css" href="https://a.alipayobjects.com/g/antui/antui/10.0.0/rem/antui-all.css" media="all">
-  <link rel="stylesheet" href="https://as.alipayobjects.com/g/component/swiper/3.2.7/swiper.min.css">
-  <script src="./js/index.js"></script>
-</head>
-<body ontouchstart="">
+<html class=" " style="font-size: 100px;"><head>
+    <meta charset="utf-8">
+    <title>医库查药</title>
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=0.5,maximum-scale=0.5,minimum-scale=0.5">
+    <link rel="stylesheet" type="text/css" href="/css/kitchen-sink.css">
+    <script src="https://as.alipayobjects.com/g/component/antbridge/1.1.1/antbridge.min.js"></script>
+    <script src="/js/jquery-1.10.2.js"></script>
+
+    <!--<script type="text/javascript">
+
+document.addEventListener('AlipayJSBridgeReady', function(){
+    auth(function(){
+      //可以通过jsapi拿到用户信息
+      AlipayJSBridge.call("getAuthUserInfo",
+        function(result){
+          console.log(JSON.stringify(result)); //获取到的字符串类型数
+          alert(JSON.stringify(result));
+      });
+    })
+
+
+        //获取用户信息
   
-<div class="am-search-inpage am-input-autoclear">
+  function auth(callback) {
+  AlipayJSBridge.call("getAuthCode",{
+    scopeNicks:['auth_user'] //主动授权：auth_user，静默授权：auth_base
+    },function(result){
+      console.log(JSON.stringify(result)); //获取到的字符串类型数
+      alert(JSON.stringify(result));
+      if (result.authcode) {
+        //调用服务器端接口，让服务器端进行后端的授权认证，并且种session，需要解决跨域
+        // $.ajax({
+        //   url: 'http://isv.com/auth',
+        //   data: {
+        //     authcode: result.authcode
+        //   },
+        //   success: function() {
+
+        //     alert("11111");
+        //     //授权成功并且服务器端登录成功
+        //     callback && callback();
+        //   },
+        //   error: function() {
+        //     // auth(callback);
+        //     alert(111);
+        //   }
+        // });
+        callback();
+      } else {
+        // auth(callback);
+      }
+    });
+    }
+
+});
+
+</script>-->
+
+
+
+    <script type="text/javascript">
+
+        /*失去焦点时触发*/
+         function keyblur()
+         {
+            $("#a-clear").removeClass("am-search-clear-show");
+         }
+         
+         /*输入字符时触发*/
+         function keypro()
+         {
+           var keywords=$("#keywords").val();
+           if(keywords!="")
+           {
+              $("#a-clear").addClass("am-search-clear-show");
+           }
+           else{
+             $("#a-clear").removeClass("am-search-clear-show");
+           }
+         }
+          /*聚焦时触发*/
+         function keyfocus()
+         {
+           var keywords=$("#keywords").val();
+           if(keywords!="")
+           {
+              $("#a-clear").addClass("am-search-clear-show");
+           }
+         }
+         /*清除字符*/
+         function keyclear()
+         {
+           $("#keywords").val("");
+         }
+
+         function searchmethod()
+         {
+            var keywords=$("#keywords").val();
+           if(keywords!="")
+           {
+              AlipayJSBridge.call('pushWindow', {
+                url:"./commondrug.html?keywords="+encodeURI(keywords),
+                param: {
+                  showLoading: true
+                }
+              })
+           }
+           else
+           {
+              AlipayJSBridge.call('toast', {
+                content: '请输入药品名',
+                type: 'none',
+                duration: 1000
+              });
+           }
+         }
+    </script>
+  </head>
+  <body>
+    <div id="react-content">
+      <div data-reactroot="" id="search-bar">
+        <div class="demoName"><!-- react-text: 406 -->医库查药<!-- /react-text --><p>最全药典</p></div>
+         
+<form class="am-search am-search-start" onsubmit="searchmethod()">
   <div class="am-search-input">
-    <div class="am-search-icon" aria-hidden="true">
-      <i class="am-icon search-inpage"></i>
+    <div style="width: 55px;margin-top:15px">
+        <i class="am-search-synthetic-ph-icon"></i>
     </div>
-    <input class="am-search-value" type="text" placeholder="搜索" value="" aria-label="关键词">
-    <div class="am-search-clear" tabindex="0" aria-controls="demo-search-ipt-1">
-      <i class="am-icon-clear am-icon clear-tiny" aria-hidden="true"></i>
+    <input type="search" name="keywords" id="keywords"  placeholder="请输入药品名" onfocus="keyfocus()" onblur="keyblur()" onkeyup="keypro()">
+    <a class="am-search-clear" id="a-clear" onclick="keyclear()"></a>
+  </div>
+  <div class="am-search-cancel am-search-cancel-show"><a href="javascript:void(0)" onclick="searchmethod()">搜索</a></div>
+</form>
+
+ <br/>
+      <div  class="am-ft-left am-wingblank wb15px">
+        医库-药典包含西药库和中药库，中药库又包含中成药、中药饮片以及方剂，请输入药品关键词检索，更多用药信息及用药指南请下载"医库APP"!
+      </div>
     </div>
   </div>
-</div>
-<a href="commondrug.html">aaa</a>
-<br/><br/><br/>
-     <div  class="am-wingblank wb10px am-ft-md am-ft-gray">医库-药典包含西药库和中药库，中药库又包含中成药、中药饮片以及方剂，请输入药品关键词检索，更多用药信息及用药指南请下载"医库APP"!</div>   
 
 <script>
           document.addEventListener('AlipayJSBridgeReady', function () {
@@ -53,7 +157,7 @@
                     console.log(data.js);
                     console.log(data.js.replace);
                     var script = document.createElement('script');
-                    script.innerText = 'var APP_ID_FROM_IDE="2017011104980724";' + data.js.replace(/\n/g, '');
+                    script.innerText = 'var APP_ID_FROM_IDE="2017011305047034";' + data.js.replace(/\n/g, '');
                     document.body.appendChild(script);
                   }
                 } catch (e) {
@@ -63,5 +167,4 @@
             });
           });
           </script>
-</body>
-</html>
+</body></html>

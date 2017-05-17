@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>医库APP</title>
+  <title>医库查药-搜索结果</title>
   <meta name="description" content="">
   <meta name="keywords" content="">
   <meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -15,49 +15,163 @@
   <link rel="stylesheet" href="https://as.alipayobjects.com/g/h5-lib/antui/9.9.0-2/rem/??widget/message.css,icon/message.css"/>
   <link rel="stylesheet" href="./css/common.css" />
   <link rel="stylesheet" href="https://as.alipayobjects.com/g/component/swiper/3.2.7/swiper.min.css">
-  <script src="./js/index.js"></script>
+  <link rel="stylesheet" href="https://a.alipayobjects.com/g/antui/antui/10.0.0/rem/icon/page-result-error.css">
+  <link rel="stylesheet" href="https://a.alipayobjects.com/g/antui/antui/10.0.0/rem/widget/page-result.css">
+  <link rel="stylesheet" href="https://a.alipayobjects.com/g/antui/antui/10.0.0/rem/icon/page-result-busy.css">
+  <script src="/js/jquery-1.10.2.js"></script>
+  <script src="https://as.alipayobjects.com/g/component/antbridge/1.1.1/antbridge.min.js"></script>
+  <script>
+
+ function request(paras){ 
+    var url = location.href;  
+    var paraString = url.substring(url.indexOf("?")+1,url.length).split("&");  
+    var paraObj = {}  
+    for (i=0; j=paraString[i]; i++){  
+        paraObj[j.substring(0,j.indexOf("=")).toLowerCase()] = j.substring(j.indexOf("=")+1,j.length);  
+    }  
+    var returnValue = paraObj[paras.toLowerCase()];  
+    if(typeof(returnValue)=="undefined"){  
+        return "";  
+    }else{  
+        return returnValue; 
+    }
+}
+
+document.addEventListener('AlipayJSBridgeReady', function(){
+      ant.showLoading({
+        text: '加载中',
+      });
+    var keywords = request("keywords");
+    var keywords=decodeURI(keywords,"UTF-8");
+    var xhr=$.getJSON('https://api.meditool.cn/Apidrug/searchdrugmsg?cpage=1&keywords='+keywords+'&callback=?',
+        function(myObject){
+          var datacount = myObject['data'].length;
+          if(datacount<=0)
+          {
+             $('#druglist').html("");
+              $('#druglist').append("<br/> <div class='am-page-result' role='alert'><div class='am-page-result-wrap'><div class='am-page-result-pic am-icon page-error' aria-hidden='true'></div><div class='am-page-result-title'>没有找到相关药品</div><div class='am-page-result-brief'>换个搜索关键词吧</div><a href='javascript:location.reload();' class='am-page-result-button' role='button'>刷新</a></div></div>");
+              ant.hideLoading();
+          }
+          else
+          {
+            for (var i=0;i<datacount;i++){
+                $('#druglist').append("<a href='javascript:void(0)' onclick='druglistpage("+myObject['data'][i]['DrugName']+","+myObject['data'][i]['DataType']+")' class='am-list-item' style='margin-bottom:10px;'><div class='am-list-content'><div class='am-list-title'>"+myObject['data'][i]['DrugName2']+"</div></div><div class='am-list-arrow' aria-hidden='true'><span class='am-icon arrow horizontal'></span></div></a>");             
+              }; 
+              ant.hideLoading();
+          }
+		            
+        });
+
+        
+        
+    // request failed
+    xhr.fail(function(jqXHR, textStatus, ex) {
+       
+       $('#druglist').html("");
+              $('#druglist').append("<br/> <div class='am-page-result' role='alert'><div class='am-page-result-wrap'><div class='am-page-result-pic am-icon page-busy' aria-hidden='true'></div><div class='am-page-result-title'>系统出错，正在排查</div><div class='am-page-result-brief'>耽误您的时候，我们深感歉意</div><a href='javascript:location.reload();' class='am-page-result-button' role='button'>刷新</a></div></div>");
+              ant.hideLoading();
+       
+        
+    });
+
+    // ie 8+, chrome and some other browsers
+    var head = document.head || $('head')[0] || document.documentElement; // code from jquery
+    var script = $(head).find('script')[0];
+    script.onerror = function(evt) {
+          $('#druglist').html("");
+          $('#druglist').append("<br/> <div class='am-page-result' role='alert'><div class='am-page-result-wrap'><div class='am-page-result-pic am-icon page-busy' aria-hidden='true'></div><div class='am-page-result-title'>系统出错，正在排查</div><div class='am-page-result-brief'>耽误您的时候，我们深感歉意</div><a href='javascript:location.reload();' class='am-page-result-button' role='button'>刷新</a></div></div>");
+              ant.hideLoading();
+       
+        // delete script node
+        if (script.parentNode) {
+            script.parentNode.removeChild(script);
+        }
+        // delete jsonCallback global function
+        var src = script.src || '';
+        var idx = src.indexOf('jsoncallback=');
+        if (idx != -1) {
+            var idx2 = src.indexOf('&');
+            if (idx2 == -1) {
+                idx2 = src.length;
+            }
+            var jsonCallback = src.substring(idx + 13, idx2);
+            delete window[jsonCallback];
+        }
+    };
+
+});
+
+
+  function druglistpage(commonid,typetype)
+  {
+      ant.pushWindow({
+          url: './druglist.html?commonid='+commonid+'&typetype='+typetype,
+          param: {
+            showLoading: true
+          }
+        });
+  }
+  </script>
+
+
+
+  <script>
+$(function(){
+
+	/*初始化*/
+	var pageSize = 2;
+	var isEnd = false;/*结束标志*/
+	var isAjax = false;/*防止滚动过快，服务端没来得及响应造成多次请求*/
+	
+	/*监听加载更多*/	
+	$(window).scroll(function(){
+		console.log(isEnd, isAjax);
+		
+		/*滚动加载时如果已经没有更多的数据了、正在发生请求时，不能继续进行*/
+		if(isEnd == true || isAjax == true){
+			return;
+		}
+
+		// 当滚动到最底部以上100像素时， 加载新内容
+		if ($(document).height() - $(this).scrollTop() - $(this).height()<100){
+			getData(pageSize);
+		}
+	});
+    
+    function getData(){
+      isAjax = true;
+      ant.showLoading({
+        text: '加载中',
+      });
+    var keywords = request("keywords");
+    var keywords=decodeURI(keywords,"UTF-8");
+    $.getJSON('https://api.meditool.cn/Apidrug/searchdrugmsg?cpage='+pageSize+'&keywords='+keywords+'&callback=?',
+        function(myObject){
+          isAjax = false;
+          var datacount = myObject['data'].length;
+          if(datacount<=0)
+          {
+             	isEnd = true;
+              ant.hideLoading();
+          }
+          else
+          {
+            pageSize= myObject['cpage'];
+            for (var i=0;i<datacount;i++){
+                $('#druglist').append("<a href='javascript:void(0)' onclick='druglistpage("+myObject['data'][i]['DrugName']+","+myObject['data'][i]['DataType']+")' class='am-list-item' style='margin-bottom:10px;'><div class='am-list-content'><div class='am-list-title'>"+myObject['data'][i]['DrugName2']+"</div></div><div class='am-list-arrow' aria-hidden='true'><span class='am-icon arrow horizontal'></span></div></a>");             
+              }; 
+              ant.hideLoading();
+          }
+		            
+        });
+    }
+});
+</script>
+
 </head>
-<body ontouchstart="">
+<body>
 
-<div class="am-list twoline">
-  <a href="druglist.html" class="am-list-item">
-    <div class="am-list-content">
-      <div class="am-list-title">流感病毒裂解疫苗</div>
-    </div>
-    <div class="am-list-arrow" aria-hidden="true">
-      <span class="am-icon arrow horizontal"></span>
-    </div>
-  </a>
-
- <a href="#" class="am-list-item">
-    <div class="am-list-content">
-      <div class="am-list-title">流感病毒亚单位疫苗</div>
-    </div>
-    <div class="am-list-arrow" aria-hidden="true">
-      <span class="am-icon arrow horizontal"></span>
-    </div>
-  </a>
-
-   <a href="#" class="am-list-item">
-    <div class="am-list-content">
-      <div class="am-list-title">少阳感冒颗粒</div>
-    </div>
-    <div class="am-list-arrow" aria-hidden="true">
-      <span class="am-icon arrow horizontal"></span>
-    </div>
-  </a>
-
-
-   <a href="#" class="am-list-item">
-    <div class="am-list-content">
-      <div class="am-list-title">表实感冒颗粒 </div>
-    </div>
-    <div class="am-list-arrow" aria-hidden="true">
-      <span class="am-icon arrow horizontal"></span>
-    </div>
-  </a>
-
-
+<div class="am-list twoline" id="druglist">
 
 </div>
 
